@@ -35,11 +35,8 @@
         </div>
         <div class="form-group">
             <label for="username">Username</label>
-            <input class="form-control @error('username') is-invalid @enderror" type="text" name="username"
-                id="username" value="{{ $user->username }}" disabled>
-            @error('username')
-            <small class="fw-bold invalid-feedback">{{ $message }}</small>
-            @enderror
+            <input class="form-control" type="text" name="username" id="username" value="{{ $user->username }}"
+                disabled>
         </div>
         <div class="form-group">
             <label for="phone">Phone number</label>

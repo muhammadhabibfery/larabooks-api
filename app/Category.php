@@ -10,21 +10,36 @@ class Category extends Model
 {
     use SoftDeletes;
 
-    protected $guarded = ['image'];
+    protected $guarded = [];
 
+    /**
+     * The books that belong to the category
+     */
     public function books()
     {
         return $this->belongsToMany(Book::class)->withTimestamps();
     }
 
+
+    /**
+     * set the category's name and slug attribute
+     *
+     * @param string $value
+     * @return void
+     */
     public function setNameAttribute($value)
     {
         $this->attributes['name'] = Str::title($value);
         $this->attributes['slug'] = Str::slug($value, '-');
     }
 
-    public function getCategoryImage()
+    /**
+     * get the category's image with custom directory path
+     *
+     * @return mixed
+     */
+    public function getImage()
     {
-        return ($this->category_image) ? asset('/storage/' . $this->category_image) : asset('/storage/default/no-image.png');
+        return ($this->category_image) ? asset('storage/images/' . $this->image) : asset('storage/default/no-image.png');
     }
 }

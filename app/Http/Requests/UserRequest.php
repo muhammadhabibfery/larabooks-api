@@ -47,5 +47,11 @@ class UserRequest extends FormRequest
                 'address' => 'required|min:10|max:100',
                 'image' => 'nullable|image|max:2500'
             ];
+
+        if (request()->routeIs('profiles.password.update'))
+            return [
+                'current_password' => ['required', 'string', 'password'],
+                'new_password' => ['required', 'different:current_password', 'min:5', 'confirmed'],
+            ];
     }
 }

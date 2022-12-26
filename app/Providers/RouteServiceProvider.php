@@ -49,10 +49,10 @@ class RouteServiceProvider extends ServiceProvider
                 });
         });
 
-        // FITUR PROFILE => Pahami fitur edit profil user (Ada perbedaan Pemakaian Gate, Policy)
-
         Route::macro('profileRoutes', function () {
-            Route::get('/profile', 'ProfileController@editProfile')->name('profiles.edit');
+            Route::get('/profile/password/edit', 'ProfileController@editPassword')->name('profiles.password.edit');
+            Route::patch('/profile/password/{user}', 'ProfileController@updatePassword')->name('profiles.password.update');
+            Route::get('/profile/edit', 'ProfileController@editProfile')->name('profiles.edit');
             Route::patch('/profile/{user}', 'ProfileController@updateProfile')->name('profiles.update');
         });
 

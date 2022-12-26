@@ -67,10 +67,11 @@
             @endif
             <div class="dropdown-menu dropdown-menu-right" id="navbardropdown">
                 <a href="{{ route('profiles.edit') }}"
-                    class="dropdown-item{{ request()->is('profile*') ? ' active' : '' }}">
+                    class="dropdown-item{{ request()->is('profile/edit*') ? ' active' : '' }}">
                     Profile
                 </a>
-                <a href="#" class="dropdown-item">Password</a>
+                <a href="{{ route('profiles.password.edit') }}"
+                    class="dropdown-item{{ request()->is('profile/password*') ? ' active' : '' }}">Password</a>
                 <div class="dropdown-divider"></div>
                 <li>
                     <form action="{{ route('logout') }}" method="POST">
@@ -104,6 +105,12 @@
                     </li>
                     @endif
                     <li>
+                        <a href="{{ route('categories.index') }}"
+                            class="{{ request()->is('admin/categories*') ? 'font-italic fw-bold' : '' }}">
+                            <span class="oi oi-tag"></span> Manage categories
+                        </a>
+                    </li>
+                    <li>
                         <a href="{{ route('orders.index') }}"
                             class="{{ request()->is('admin/orders*') ? 'font-italic fw-bold' : '' }}">
                             <span class="oi oi-inbox"></span> Manage orders
@@ -113,12 +120,6 @@
                         <a href="{{ route('books.index') }}"
                             class="{{ request()->is('admin/books*') ? 'font-italic fw-bold' : '' }}">
                             <span class="oi oi-book"></span> Manage books
-                        </a>
-                    </li>
-                    <li>
-                        <a href="{{ route('categories.index') }}"
-                            class="{{ request()->is('categories*') ? 'font-italic fw-bold' : '' }}">
-                            <span class="oi oi-tag"></span> Manage categories
                         </a>
                     </li>
                     <div class="d-block d-md-none">

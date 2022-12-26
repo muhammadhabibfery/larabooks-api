@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\UserRequest;
 use App\Traits\ImageHandler;
 use App\User;
+use Illuminate\Support\Facades\Hash;
 
 class ProfileController extends Controller
 {
@@ -17,6 +18,11 @@ class ProfileController extends Controller
      */
     private $user;
 
+    /**
+     * Create instance of authenticated user
+     *
+     * @return void
+     */
     public function __construct()
     {
         $this->middleware(function ($request, $next) {
@@ -25,6 +31,11 @@ class ProfileController extends Controller
         });
     }
 
+    /**
+     * Show edit profile form
+     *
+     * @return \Illuminate\Http\Response
+     */
     public function editProfile()
     {
         return view('pages.profiles.edit-profile', ['user' => $this->user]);
@@ -34,6 +45,7 @@ class ProfileController extends Controller
      * Update the user's profile.
      *
      * @param  \App\Http\Requests\UserRequest  $request
+     * @param  \App\User  $user
      * @return mixed
      */
     public function updateProfile(UserRequest $request, User $user)
@@ -50,6 +62,33 @@ class ProfileController extends Controller
             } else {
                 throw new \Exception('Failed to update your profile');
             }
+        });
+    }
+
+    /**
+     * Show edit password form
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function editPassword()
+    {
+        return view('pages.profiles.edit-password', ['user' => $this->user]);
+    }
+
+    /**
+     * Update the user's password.
+     *
+     * @param  \App\Http\Requests\UserRequest  $request
+     * @param  \App\User  $user
+     * @return mixed
+     */
+    public function updatePassword(UserRequest $request, User $user)
+    {
+        $data = ['password' => Hash::make($request->validated()['new_password'])];
+        $successMessage = 'Your password has been updated';
+
+        return $this->checkProcess('dashboard', $successMessage, function () use ($user, $data) {
+            if (!$user->update($data)) throw new \Exception('Failed to update your password');
         });
     }
 

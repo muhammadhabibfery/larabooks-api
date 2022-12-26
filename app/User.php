@@ -95,7 +95,7 @@ class User extends Authenticatable
      */
     public function getAvatar()
     {
-        return ($this->avatar) ? asset('/storage/avatars/' . $this->avatar) : asset('images/no-user.jpg');
+        return ($this->avatar) ? asset('storage/avatars/' . $this->avatar) : asset('images/no-user.jpg');
     }
 
     /**
