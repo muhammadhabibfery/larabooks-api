@@ -1,8 +1,8 @@
 @extends('layouts.global')
 
-@section('title', 'List of books')
+@section('title', 'List of deleted books')
 
-@section('pageTitle', 'Daftar Buku')
+@section('pageTitle', 'Daftar Buku Terhapus')
 
 @section('content')
 <x-books.book-search-bar :route="route('books.trash')" type="trash" />

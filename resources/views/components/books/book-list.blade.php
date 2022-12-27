@@ -55,7 +55,7 @@
                         data-target="#deleteBook{{ $book->slug }}Modal">Delete</a>
                 </td>
 
-                {{-- Delete User Modal --}}
+                {{-- Delete Book Modal --}}
                 <div class="modal fade" id="deleteBook{{ $book->slug }}Modal" tabindex="-1" role="dialog"
                     aria-labelledby="deleteBook" aria-hidden="true">
                     <div class="modal-dialog" role="document">
@@ -68,8 +68,8 @@
                             </div>
                             <div class="modal-body">
                                 <p>
-                                    Are you sure want to {{ $type === 'trash' ? ' permanently' : '' }} delete book {{
-                                    $book->title }} ?
+                                    Are you sure want to delete book {{ $book->title }} {{ $type === 'trash' ? '
+                                    permanently' : '' }} ?
                                 </p>
                             </div>
                             <div class="modal-footer">

@@ -30,7 +30,7 @@
                     @endcan
                 </td>
 
-                {{-- Soft Delete Category Modal --}}
+                {{-- Delete Category Modal --}}
                 <div class="modal fade" id="deleteCategory{{ $category->slug }}Modal" tabindex="-1" role="dialog"
                     aria-labelledby="deleteCategoryModalLabel" aria-hidden="true">
                     <div class="modal-dialog" role="document">

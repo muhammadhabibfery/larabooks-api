@@ -82,7 +82,7 @@ class Book extends Model
     }
 
     /**
-     * Scope a query to only include popular users.
+     * Scope a query to include categories relations.
      *
      * @param  \Illuminate\Database\Eloquent\Builder  $query
      * @return \Illuminate\Database\Eloquent\Builder

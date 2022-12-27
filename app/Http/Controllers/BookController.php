@@ -21,7 +21,7 @@ class BookController extends Controller
     private const ROUTE_INDEX = 'books.index', ROUTE_TRASH = 'books.trash', STATUS = ['PUBLISH', 'DRAFT'];
 
     /**
-     * authorizing the category controller
+     * authorizing the book controller
      *
      * @return void
      */
@@ -41,93 +41,6 @@ class BookController extends Controller
         $status = self::STATUS;
         $books = $this->getAllBooksBySearch($request->keyword, $request->status, 10);
         return view('pages.books.index', compact('books', 'status'));
-    }
-
-    /**
-     * query all books by search
-     *
-     * @param  string $keyword
-     * @param  string $status
-     * @param  int $number (define paginate data per page)
-     * @param  bool $onlyDeleted (only trashed when delete using soft delete)
-     * @return \illuminate\Pagination\LengthAwarePaginator
-     */
-    private function getAllBooksBySearch(?string $keyword, ?string $status, int $number, bool $onlyDeleted = false)
-    {
-        $books = Book::with(['categories' => fn ($query) => $query->where('name', 'LIKE', "%$keyword%")])
-            ->where(fn ($query) => $query->getCategories($keyword)->orWhere('title', 'LIKE', "%$keyword%"));
-
-        if ($status && in_array($status, self::STATUS)) $books->where('status', $status);
-
-        if ($onlyDeleted) $books->onlyTrashed();
-
-        return $books->latest()
-            ->paginate($number);
-    }
-
-    /**
-     * query all categories
-     *
-     * @return \App\Category
-     */
-    private function getAllCategories()
-    {
-        return Category::latest()->get();
-    }
-
-    /**
-     * merge data into an array
-     *
-     * @param  object $request
-     * @param  string|null $categoryImage
-     * @param  bool $store (merge data when store a new category or update existing category)
-     * @return array
-     */
-    private function mergeData(object $request, ?string $bookCover = null, ?bool $store = true)
-    {
-        $validatedData = $request->validated();
-
-        if ($store) {
-            $additionalData = [
-                'created_by' => auth()->id(),
-                'cover' => $this->setImageFile($request, 'books')
-            ];
-        } else {
-            $additionalData = [
-                'updated_by' => auth()->id(),
-                'cover' => $this->setImageFile($request, 'books', $bookCover)
-            ];
-        }
-
-        return array_merge($validatedData, $additionalData);
-    }
-
-    /**
-     * Check one or more processes and catch them if fail
-     *
-     * @param  string $routeName
-     * @param  string $successMessage
-     * @param  callable $action
-     * @param  bool $dbTransaction (use database transaction for multiple queries)
-     * @return \Illuminate\Http\Response
-     */
-    private function checkProcess(string $routeName, string $successMessage, callable $action, ?bool $dbTransaction = false)
-    {
-        try {
-            if ($dbTransaction) DB::beginTransaction();
-
-            $action();
-
-            if ($dbTransaction) DB::commit();
-        } catch (\Exception $e) {
-            if ($dbTransaction) DB::rollback();
-
-            return redirect()->route($routeName)
-                ->with('failed', $e->getMessage());
-        }
-
-        return redirect()->route($routeName)
-            ->with('success', $successMessage);
     }
 
     /**
@@ -213,7 +126,7 @@ class BookController extends Controller
      * Remove the specified resource from storage.
      *
      * @param  \App\Book  $book
-     * @return \Illuminate\Http\Response
+     * @return mixed
      */
     public function destroy(Book $book)
     {
@@ -290,5 +203,92 @@ class BookController extends Controller
                 throw new \Exception($failedMessage);
             }
         }, true);
+    }
+
+    /**
+     * query all books by search
+     *
+     * @param  string $keyword
+     * @param  string $status
+     * @param  int $number (define paginate data per page)
+     * @param  bool $onlyDeleted (only trashed when delete using soft delete)
+     * @return \illuminate\Pagination\LengthAwarePaginator
+     */
+    private function getAllBooksBySearch(?string $keyword, ?string $status, int $number, bool $onlyDeleted = false)
+    {
+        $books = Book::with(['categories' => fn ($query) => $query->where('name', 'LIKE', "%$keyword%")])
+            ->where(fn ($query) => $query->getCategories($keyword)->orWhere('title', 'LIKE', "%$keyword%"));
+
+        if ($status && in_array($status, self::STATUS)) $books->where('status', $status);
+
+        if ($onlyDeleted) $books->onlyTrashed();
+
+        return $books->latest()
+            ->paginate($number);
+    }
+
+    /**
+     * query all categories
+     *
+     * @return \App\Category
+     */
+    private function getAllCategories()
+    {
+        return Category::latest()->get();
+    }
+
+    /**
+     * merge data into an array
+     *
+     * @param  object $request
+     * @param  string|null $bookCover
+     * @param  bool $store (merge data when store a new book or update existing book)
+     * @return array
+     */
+    private function mergeData(object $request, ?string $bookCover = null, ?bool $store = true)
+    {
+        $validatedData = $request->validated();
+
+        if ($store) {
+            $additionalData = [
+                'created_by' => auth()->id(),
+                'cover' => $this->setImageFile($request, 'books')
+            ];
+        } else {
+            $additionalData = [
+                'updated_by' => auth()->id(),
+                'cover' => $this->setImageFile($request, 'books', $bookCover)
+            ];
+        }
+
+        return array_merge($validatedData, $additionalData);
+    }
+
+    /**
+     * Check one or more processes and catch them if fail
+     *
+     * @param  string $routeName
+     * @param  string $successMessage
+     * @param  callable $action
+     * @param  bool $dbTransaction (use database transaction for multiple queries)
+     * @return \Illuminate\Http\Response
+     */
+    private function checkProcess(string $routeName, string $successMessage, callable $action, ?bool $dbTransaction = false)
+    {
+        try {
+            if ($dbTransaction) DB::beginTransaction();
+
+            $action();
+
+            if ($dbTransaction) DB::commit();
+        } catch (\Exception $e) {
+            if ($dbTransaction) DB::rollback();
+
+            return redirect()->route($routeName)
+                ->with('failed', $e->getMessage());
+        }
+
+        return redirect()->route($routeName)
+            ->with('success', $successMessage);
     }
 }
