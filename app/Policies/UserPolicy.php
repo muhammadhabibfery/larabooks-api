@@ -95,7 +95,7 @@ class UserPolicy
      * Determine only user who have admin role
      *
      * @param  \App\User $user
-     * @param  \App\User $model (prevent the action if the model have customer role)
+     * @param  \App\User $model (prevent the action if the model hase customer role)
      * @return bool
      */
     private function onlyAdminRole(User $user, ?User $model = null)

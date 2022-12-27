@@ -12,14 +12,7 @@
             <a href="{{ route('categories.index') }}" class="btn btn-link btn-outline-primary float-right">Back</a>
         </div>
     </div>
-    <form action="{{ route('categories.update', $category) }}" method="POST" enctype="multipart/form-data"
-        class="bg-white shadow-sm p-3" id="myfr">
-        @csrf
-        @method('PATCH')
 
-        @include('categories.partials.form',compact($category))
-
-        <button type="submit" class="btn btn-primary btn-block" id="btnfr">Edit</button>
-    </form>
+    <x-categories.category-form :route="route('categories.update', $category)" :category="$category" />
 </div>
 @endsection

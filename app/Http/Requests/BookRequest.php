@@ -24,21 +24,33 @@ class BookRequest extends FormRequest
      */
     public function rules()
     {
-        $rules = [
-            'title' => "required|min:3|max:200|unique:books,title,except,{$this->id}",
+        return [
+            'title' => ['required', 'min:3', 'max:200', Rule::unique('books', 'title')->ignore($this->book)],
+            'categories' => 'required|array|min:1',
+            'categories.*' => 'required|numeric|exists:categories,id',
             'image' => 'file|image|max:2500|nullable',
             'description' => 'required|min:10|max:500',
-            'stock' => 'required|integer|digits_between:0,5s',
+            'stock' => 'required|integer|min:1',
             'author' => 'required|min:3|max:100',
             'publisher' => 'required|min:3|max:100',
             'price' => 'required|numeric',
-            'action' => ['required', Rule::in(['PUBLISH', 'DRAFT'])],
+            'status' => 'required|in:PUBLISH,DRAFT'
         ];
+    }
 
-        if (request()->isMethod('patch') || request()->isMethod('put')) {
-            $rules['title'] = ['required', Rule::unique('books', 'title')->ignore($this->book)];
+    /**
+     * Prepare the data for validation.
+     *
+     * @return void
+     */
+    protected function prepareForValidation()
+    {
+        $request = $this->request->all();
+
+        if ($this->request->has('price')) {
+            $this->merge([
+                'price' => integerFormat($request['price'])
+            ]);
         }
-
-        return $rules;
     }
 }

@@ -5,5 +5,5 @@
 @section('pageTitle', 'Detail Buku')
 
 @section('content')
-<x-books.book-detail :book="$book" :route="route('books.index')" />
+<x-books.book-detail :book="$book" :route="route('books.trash')" />
 @endsection

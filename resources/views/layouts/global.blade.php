@@ -111,15 +111,15 @@
                         </a>
                     </li>
                     <li>
-                        <a href="{{ route('orders.index') }}"
-                            class="{{ request()->is('admin/orders*') ? 'font-italic fw-bold' : '' }}">
-                            <span class="oi oi-inbox"></span> Manage orders
-                        </a>
-                    </li>
-                    <li>
                         <a href="{{ route('books.index') }}"
                             class="{{ request()->is('admin/books*') ? 'font-italic fw-bold' : '' }}">
                             <span class="oi oi-book"></span> Manage books
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ route('orders.index') }}"
+                            class="{{ request()->is('admin/orders*') ? 'font-italic fw-bold' : '' }}">
+                            <span class="oi oi-inbox"></span> Manage orders
                         </a>
                     </li>
                     <div class="d-block d-md-none">

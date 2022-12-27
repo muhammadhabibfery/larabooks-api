@@ -57,27 +57,28 @@ class RouteServiceProvider extends ServiceProvider
         });
 
         Route::macro('categoryRoutes', function () {
-            Route::get('/categories/trash', 'CategoryController@trash')->name('categories.trash');
-            Route::get('/categories/restore/{slug}', 'CategoryController@restore')->name('categories.restore');
-            Route::delete('/categories/force-delete/{slug}', 'CategoryController@forceDelete')->name('categories.force-delete');
-            Route::get('/categories/edit/{category:slug}', 'CategoryController@edit')->name('categories.edit');
+            Route::get('/categories/trash', 'CategoryController@indexTrash')->name('categories.trash');
+            Route::get('/categories/trash/restore/{category}', 'CategoryController@restore')->name('categories.trash.restore');
+            Route::get('/categories/trash/{category}', 'CategoryController@showTrash')->name('categories.trash.show');
+            Route::delete('/categories/trash/force-delete/{category}', 'CategoryController@forceDelete')
+                ->name('categories.trash.force-delete');
+            Route::get('/categories/edit/{category}', 'CategoryController@edit')->name('categories.edit');
 
             Route::resource('categories', 'CategoryController')
-                ->parameters(['categories' => 'category:slug'])
+                ->parameters(['categories' => 'category'])
                 ->except(['edit']);
-            // Route::middleware('authRole:ADMIN,STAFF')
-            //     ->group(function () {
-            //     });
         });
 
         Route::macro('bookRoutes', function () {
-            Route::get('/books/trash', 'BookController@trash')->name('books.trash');
-            Route::get('/books/restore/{slug}', 'BookController@restore')->name('books.restore');
-            Route::delete('/books/force-delete/{slug}', 'BookController@forceDelete')->name('books.force-delete');
-            Route::get('/books/edit/{book:slug}', 'BookController@edit')->name('books.edit');
+            Route::get('/books/trash', 'BookController@indexTrash')->name('books.trash');
+            Route::get('/books/trash/restore/{book}', 'BookController@restore')->name('books.trash.restore');
+            Route::get('/books/trash/{book}', 'BookController@showTrash')->name('books.trash.show');
+            Route::delete('/books/trash/force-delete/{book}', 'BookController@forceDelete')
+                ->name('books.trash.force-delete');
+            Route::get('/books/edit/{book}', 'BookController@edit')->name('books.edit');
 
             Route::resource('books', 'BookController')
-                ->parameters(['books' => 'book:slug'])
+                ->parameters(['books' => 'book'])
                 ->except(['edit']);
             // Route::middleware('authRole:ADMIN,STAFF')
             //     ->group(function () {

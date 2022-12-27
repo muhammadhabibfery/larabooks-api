@@ -4,21 +4,31 @@ namespace App\Http\Controllers;
 
 use App\Book;
 use App\Category;
-use App\Http\Requests\BookRequest;
+use App\Traits\ImageHandler;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Contracts\Encryption\DecryptException;
-use Illuminate\Database\Eloquent\Builder;
+use App\Http\Requests\BookRequest;
+use Illuminate\Support\Facades\DB;
 
 class BookController extends Controller
 {
-    // public function __construct()
-    // {
-    //     $this->middleware(function ($request, $next) {
-    //         if (Gate::allows('manage-books')) return $next($request);
-    //         abort('403');
-    //     });
-    // }
+    use ImageHandler;
+
+    /**
+     * constant of property names
+     *
+     * @var string
+     */
+    private const ROUTE_INDEX = 'books.index', ROUTE_TRASH = 'books.trash', STATUS = ['PUBLISH', 'DRAFT'];
+
+    /**
+     * authorizing the category controller
+     *
+     * @return void
+     */
+    public function __construct()
+    {
+        $this->middleware('authRole:ADMIN')->only(['indexTrash', 'showTrash', 'restore', 'forceDelete']);
+    }
 
     /**
      * Display a listing of the resource.
@@ -28,10 +38,96 @@ class BookController extends Controller
      */
     public function index(Request $request)
     {
-        $keyword = $request->search;
-        $status = $request->action;
-        $books = $this->getBooksFromQueryString($keyword, $status);
-        return view('books.index', compact('books'));
+        $status = self::STATUS;
+        $books = $this->getAllBooksBySearch($request->keyword, $request->status, 10);
+        return view('pages.books.index', compact('books', 'status'));
+    }
+
+    /**
+     * query all books by search
+     *
+     * @param  string $keyword
+     * @param  string $status
+     * @param  int $number (define paginate data per page)
+     * @param  bool $onlyDeleted (only trashed when delete using soft delete)
+     * @return \illuminate\Pagination\LengthAwarePaginator
+     */
+    private function getAllBooksBySearch(?string $keyword, ?string $status, int $number, bool $onlyDeleted = false)
+    {
+        $books = Book::with(['categories' => fn ($query) => $query->where('name', 'LIKE', "%$keyword%")])
+            ->where(fn ($query) => $query->getCategories($keyword)->orWhere('title', 'LIKE', "%$keyword%"));
+
+        if ($status && in_array($status, self::STATUS)) $books->where('status', $status);
+
+        if ($onlyDeleted) $books->onlyTrashed();
+
+        return $books->latest()
+            ->paginate($number);
+    }
+
+    /**
+     * query all categories
+     *
+     * @return \App\Category
+     */
+    private function getAllCategories()
+    {
+        return Category::latest()->get();
+    }
+
+    /**
+     * merge data into an array
+     *
+     * @param  object $request
+     * @param  string|null $categoryImage
+     * @param  bool $store (merge data when store a new category or update existing category)
+     * @return array
+     */
+    private function mergeData(object $request, ?string $bookCover = null, ?bool $store = true)
+    {
+        $validatedData = $request->validated();
+
+        if ($store) {
+            $additionalData = [
+                'created_by' => auth()->id(),
+                'cover' => $this->setImageFile($request, 'books')
+            ];
+        } else {
+            $additionalData = [
+                'updated_by' => auth()->id(),
+                'cover' => $this->setImageFile($request, 'books', $bookCover)
+            ];
+        }
+
+        return array_merge($validatedData, $additionalData);
+    }
+
+    /**
+     * Check one or more processes and catch them if fail
+     *
+     * @param  string $routeName
+     * @param  string $successMessage
+     * @param  callable $action
+     * @param  bool $dbTransaction (use database transaction for multiple queries)
+     * @return \Illuminate\Http\Response
+     */
+    private function checkProcess(string $routeName, string $successMessage, callable $action, ?bool $dbTransaction = false)
+    {
+        try {
+            if ($dbTransaction) DB::beginTransaction();
+
+            $action();
+
+            if ($dbTransaction) DB::commit();
+        } catch (\Exception $e) {
+            if ($dbTransaction) DB::rollback();
+
+            return redirect()->route($routeName)
+                ->with('failed', $e->getMessage());
+        }
+
+        return redirect()->route($routeName)
+            ->with('success', $successMessage);
     }
 
     /**
@@ -41,37 +137,30 @@ class BookController extends Controller
      */
     public function create()
     {
-        $categories = Category::latest()
-            ->get();
-
-        return view('books.create', compact('categories'));
+        $categories = $this->getAllCategories();
+        $status = self::STATUS;
+        return view('pages.books.create', compact('categories', 'status'));
     }
 
     /**
      * Store a newly created resource in storage.
      *
      * @param  \App\Http\Requests\BookRequest  $request
-     * @return \Illuminate\Http\Response
+     * @return mixed
      */
     public function store(BookRequest $request)
     {
-        $data = array_merge(
-            $request->validated(),
-            [
-                'status' => $request->action,
-                'created_by' => auth()->user()->id,
-                'cover' => uploadImage($request, 'covers'),
-            ]
-        );
+        $data = $this->mergeData($request);
+        $successMessage = 'Book succesfully created';
 
-        $book = Book::create($data);
-
-        $this->attachPivotTable($request->categories, $book);
-
-        $status  = ($request->status == 'PUBLISH') ? 'Book succesfully saved and published' : 'Book saved as draft';
-
-        return redirect()->route('books.index')
-            ->with('status', $status);
+        return $this->checkProcess(self::ROUTE_INDEX, $successMessage, function () use ($request, $data) {
+            if ($book = Book::create($data)) {
+                $book->categories()->attach($data['categories']);
+                $this->createImage($request, $book->cover, 'books');
+            } else {
+                throw new \Exception('Failed to create book');
+            }
+        });
     }
 
     /**
@@ -82,7 +171,7 @@ class BookController extends Controller
      */
     public function show(Book $book)
     {
-        return view('books.show', compact('book'));
+        return view('pages.books.show', compact('book'));
     }
 
     /**
@@ -93,10 +182,9 @@ class BookController extends Controller
      */
     public function edit(Book $book)
     {
-        $categories = Category::latest()
-            ->get();
-
-        return view('books.edit', compact('book', 'categories'));
+        $categories = $this->getAllCategories();
+        $status = self::STATUS;
+        return view('pages.books.edit', compact('book', 'categories', 'status'));
     }
 
     /**
@@ -104,25 +192,21 @@ class BookController extends Controller
      *
      * @param  \App\Http\Requests\BookRequest  $request
      * @param  \App\Book  $book
-     * @return \Illuminate\Http\Response
+     * @return mixed
      */
     public function update(BookRequest $request, Book $book)
     {
-        $data = array_merge(
-            $request->validated(),
-            [
-                'status' => $request->action,
-                'updated_by' => auth()->user()->id,
-                'cover' => uploadImage($request, 'covers', $book->cover),
-            ]
-        );
+        $data = $this->mergeData($request, $book->cover, false);
+        $successMessage = 'Book successfully updated';
 
-        $book->update($data);
-
-        $this->syncPivotTable($request->categories, $book);
-
-        return redirect()->route('books.index')
-            ->with('status', 'Book successfully updated');
+        return $this->checkProcess(self::ROUTE_INDEX, $successMessage, function () use ($request, $data, $book) {
+            if ($book->update($data)) {
+                $book->categories()->sync($data['categories']);
+                $this->createImage($request, $book->cover, 'books');
+            } else {
+                throw new \Exception('Failed to update book');
+            }
+        });
     }
 
     /**
@@ -133,134 +217,78 @@ class BookController extends Controller
      */
     public function destroy(Book $book)
     {
-        $book->update(['deleted_by' => auth()->user()->id]);
-        $book->delete();
-        return redirect()->route('books.index')
-            ->with('status', 'Book moved to trash');
+        $successMessage = 'Book successfully deleted';
+        $failedMessage = 'Failed to delete book';
+
+        return $this->checkProcess(self::ROUTE_INDEX, $successMessage, function () use ($book, $failedMessage) {
+            if (!$book->update(['deleted_by' => auth()->id()])) throw new \Exception($failedMessage);
+            if (!$book->delete()) throw new \Exception($failedMessage);
+        }, true);
     }
 
     /**
-     * Display a listing of the resource (soft delete) in trash.
+     * Display a listing of the deleted resource.
+     *
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function trash(Request $request)
+    public function indextrash(Request $request)
     {
-        $status = $request->action;
-        $keyword = $request->search;
-        $deleted_books = $this->getBooksFromQueryString($keyword, $status, true);
-        return view('books.trash', compact('deleted_books'));
-    }
-
-    public function restore($slug)
-    {
-        $restore_book = Book::onlyTrashed()
-            ->where('slug', $slug)
-            ->firstOrFail();
-
-        $restore_book->update(['deleted_by' => null]);
-        $restore_book->restore();
-
-        return redirect()->route('books.trash')
-            ->with('status', 'Book succesfully restored');
-    }
-
-    public function forceDelete($slug)
-    {
-        $delete_book = Book::onlyTrashed()
-            ->where('slug', $slug)
-            ->firstOrFail();
-
-        if ($delete_book->cover) {
-            Storage::disk('public')
-                ->delete($delete_book->cover);
-        }
-
-        $delete_book->categories()
-            ->detach();
-
-        $delete_book->forceDelete();
-
-        return redirect()->route('books.trash')
-            ->with('status', 'Book permanently deleted');
+        $status = self::STATUS;
+        $books = $this->getAllBooksBySearch($request->keyword, $request->status, 10, true);
+        return view('pages.books.trash.index-trash', compact('books', 'status'));
     }
 
     /**
-     * attachPivotTable
+     * Display the specified deleted resource.
      *
-     * @param  mixed $data
-     * @param  mixed $model
-     * @return void
+     * @param  \App\Book  $book
+     * @return \Illuminate\Http\Response
      */
-    private function attachPivotTable($data, $model)
+    public function showTrash(Book $book)
     {
-        if ($data) {
-            try {
-                foreach ($data as $categories) {
-
-                    $decrypted_categories[] = decrypt($categories);
-                }
-
-                $model->categories()
-                    ->attach($decrypted_categories);
-            } catch (DecryptException $e) {
-                return abort(404);
-            }
-        }
+        return view('pages.books.trash.show-trash', compact('book'));
     }
 
-    private function syncPivotTable($data, $model)
+    /**
+     * restore the specified deleted resource.
+     *
+     * @param  \App\Book  $book
+     * @return mixed
+     */
+    public function restore(Book $book)
     {
-        if ($data) {
-            try {
-                foreach ($data as $categories) {
+        $successMessage = 'Book successfully restored';
+        $failedMessage = 'Failed to restore book';
 
-                    $decrypted_categories[] = decrypt($categories);
-                }
-
-                $model->categories()
-                    ->sync($decrypted_categories);
-            } catch (DecryptException $e) {
-                return abort(404);
-            }
-        } else {
-            if ($model->categories->isNotEmpty()) $model->categories()->detach();
-        }
+        return $this->checkProcess(self::ROUTE_TRASH, $successMessage, function () use ($book, $failedMessage) {
+            if (!$book->update(['deleted_by' => null])) throw new \Exception($failedMessage);
+            if (!$book->restore()) throw new \Exception($failedMessage);
+        }, true);
     }
 
-    private function getBooksFromQueryString($keyword, $status, $trashed = false)
+    /**
+     * remove the specified deleted resource.
+     *
+     * @param  \App\Book  $book
+     * @return mixed
+     */
+    public function forceDelete(Book $book)
     {
-        $status = strtoupper($status);
+        $bookCover = $book->cover;
+        $successMessage = 'Book successfully deleted permanently';
+        $failedMessage = 'Failed to delete book permanently';
 
-        if (!$trashed) {
-            $data = Book::with(['categories'])
-                ->where('status', 'LIKE', "%$status%")
-                ->where(function ($query) use ($keyword) {
-                    $query->where('title', 'LIKE', "%$keyword%")
-                        ->orWhere('author', 'LIKE', "%$keyword%")
-                        ->orWhere('publisher', 'LIKE', "%$keyword%")
-                        ->orWhereHas('categories', function (Builder $q) use ($keyword) {
-                            $q->where('name', 'LIKE', "%$keyword%");
-                        });
-                })
-                ->latest()
-                ->paginate(10);
-        } else {
-            $data = Book::onlyTrashed()
-                ->with(['categories'])
-                ->where('status', 'LIKE', "%$status%")
-                ->where(function ($query) use ($keyword) {
-                    $query->where('title', 'LIKE', "%$keyword%")
-                        ->orWhere('author', 'LIKE', "%$keyword%")
-                        ->orWhere('publisher', 'LIKE', "%$keyword%")
-                        ->orWhereHas('categories', function (Builder $q) use ($keyword) {
-                            $q->where('name', 'LIKE', "%$keyword%");
-                        });
-                })
-                ->latest()
-                ->paginate(10);
-        }
-
-        return $data;
+        return $this->checkProcess(self::ROUTE_TRASH, $successMessage, function () use ($book, $bookCover, $failedMessage) {
+            if ($book->categories()->detach() > 0) {
+                if ($book->forceDelete()) {
+                    $this->deleteImage('books', $bookCover);
+                } else {
+                    throw new \Exception($failedMessage);
+                }
+            } else {
+                throw new \Exception($failedMessage);
+            }
+        }, true);
     }
 }

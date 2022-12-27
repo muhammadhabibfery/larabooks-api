@@ -24,15 +24,9 @@ class CategoryRequest extends FormRequest
      */
     public function rules()
     {
-        $rules = [
-            'name' => "required|min:3|max:50|unique:categories,name,except,{$this->id}",
-            'image' => 'file|image|max:2500',
+        return [
+            'name' => ['required', 'min:3', Rule::unique('categories', 'name')->ignore($this->category)],
+            'image' => ['nullable', 'file', 'image', 'max:2500']
         ];
-
-        if (request()->isMethod('patch') || request()->isMethod('put')) {
-            $rules['name'] = ['required', Rule::unique('categories', 'name')->ignore($this->category)];
-        }
-
-        return $rules;
     }
 }

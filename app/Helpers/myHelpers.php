@@ -25,3 +25,25 @@ function createdUpdatedDeletedBy(int $id)
 {
     return User::find($id)->name;
 }
+
+/**
+ * set and display currency format
+ *
+ * @param  int $value
+ * @return string
+ */
+function currencyFormat(int $value)
+{
+    return "Rp. " .  number_format($value, 0, '.', '.');
+}
+
+/**
+ * set and display integer format
+ *
+ * @param  string $value
+ * @return int
+ */
+function integerFormat(string $value)
+{
+    return (int) str_replace('.', '', $value);
+}

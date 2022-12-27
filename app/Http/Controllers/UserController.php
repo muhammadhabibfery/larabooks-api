@@ -208,8 +208,8 @@ class UserController extends Controller
     /**
      * merge data into an array
      *
-     * @param  mixed $validatedData
-     * @param  mixed $store (merge data when store a new user or update existing user)
+     * @param  object $request
+     * @param  bool $store (merge data when store a new user or update existing user)
      * @return array
      */
     private function mergeData(object $request, ?bool $store = true)
