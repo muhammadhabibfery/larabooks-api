@@ -6,6 +6,21 @@
     @endisset
 
     <div class="form-group">
+        <label for="city">City</label>
+        <select class="city form-control" name="city_id" id="city">
+            <option value=""></option>
+            @foreach ($cities as $key => $city)
+            <option value="{{ $city->id }}" {{ isset($book) ? (old('city_id', $book->city->id) == $city->id ? 'selected'
+                : '') : (old('city_id') == $city->id ? 'selected' : '') }}>
+                {{ $city->name }}
+            </option>
+            @endforeach
+        </select>
+        @error('city_id')
+        <small class="font-weight-bold text-danger">{{ $message }}</small>
+        @enderror
+    </div>
+    <div class="form-group">
         <label for="title">Title</label>
         <input class="form-control @error('title') is-invalid @enderror" type="text" name="title" id="title"
             value="{{ isset($book) ? old('title', $book->title) : old('title') }}">
@@ -57,6 +72,16 @@
         <textarea name="description" class="form-control @error('description') is-invalid @enderror"
             id="description">{{ isset($book) ? old('description', $book->description) : old('description') }}</textarea>
         @error('description')
+        <span class="invalid-feedback" role="alert">
+            <strong>{{ $message }}</strong>
+        </span>
+        @enderror
+    </div>
+    <div class="form-group">
+        <label for="weight">Berat</label>
+        <input class="form-control @error('weight') is-invalid @enderror" type="number" name="weight" id="weight"
+            value="{{ isset($book) ? old('weight', $book->weight) : old('weight') }}" placeholder="Gram">
+        @error('weight')
         <span class="invalid-feedback" role="alert">
             <strong>{{ $message }}</strong>
         </span>

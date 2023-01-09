@@ -13,7 +13,7 @@
     </div>
 
     <x-books.book-form :route="route('books.update', $book)" :categories="$categories" :status="$status"
-        :book="$book" />
+        :cities="$cities" :book="$book" />
 </div>
 @endsection
 

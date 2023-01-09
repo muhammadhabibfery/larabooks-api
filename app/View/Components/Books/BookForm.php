@@ -11,18 +11,19 @@ class BookForm extends Component
      *
      * @var mixed
      */
-    public $route, $categories, $status, $book;
+    public $route, $categories, $status, $cities, $book;
 
     /**
      * Create a new component instance.
      *
      * @return void
      */
-    public function __construct($route, $categories, $status, $book)
+    public function __construct($route, $categories, $status, $cities, $book)
     {
         $this->route = $route;
         $this->categories = $categories;
         $this->status = $status;
+        $this->cities = $cities;
         $this->book = $book;
     }
 

@@ -16,10 +16,13 @@ class CreateOrdersTable extends Migration
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->float('total_price')->unsigned()->default(0);
-            $table->string('invoice_number');
-            $table->enum('status', ['SUBMIT', 'PROCESS', 'FINISH', 'CANCEL']);
+            $table->string('invoice_number', 31)->unique()->index();
+            $table->integer('total_price')->unsigned();
+            $table->enum('status', ['SUBMIT', 'PENDING', 'SUCCESS', 'FAILED']);
             $table->timestamps();
+            $table->integer('updated_by')->nullable();
+            $table->integer('deleted_by')->nullable();
+            $table->softDeletes();
         });
     }
 

@@ -25,8 +25,8 @@
         </div>
         <div class="form-group">
             <label for="created_at">Buyer</label>
-            <input class="form-control" type="text" id="created_at" value="{{ $order->created_at->format('l, d-F-Y') }}"
-                disabled>
+            <input class="form-control" type="text" id="created_at"
+                value="{{ transformDateFormat($order->created_at) }}" disabled>
         </div>
         <div class="form-group">
             <label for="created_at">Total Book(s) {{ $order->totalQuantity }}</label>
@@ -38,15 +38,14 @@
         </div>
         <div class="form-group">
             <label for="total_price">Total price</label>
-            <input class="form-control" type="text" id="total_price" value="{{ $order->total_price }}" disabled>
+            <input class="form-control price" type="text" id="total_price" value="{{ $order->total_price }}" disabled>
         </div>
         <div class="form-group">
             <label for="status">Status</label>
             <select name="status" id="status" class="form-control @error('status') is-invalid @enderror">
-                <option value="SUBMIT" {{ $order->status == 'SUBMIT' ? 'selected' : '' }}>SUBMIT</option>
-                <option value="PROCESS" {{ $order->status == 'PROCESS' ? 'selected' : '' }}>PROCESS</option>
-                <option value="FINISH" {{ $order->status == 'FINISH' ? 'selected' : '' }}>FINISH</option>
-                <option value="CANCEL" {{ $order->status == 'CANCEL' ? 'selected' : '' }}>CANCEL</option>
+                @foreach ($status as $s)
+                <option value="{{ $s }}" {{ $order->status == $s ? 'selected' : '' }}>{{ $s }}</option>
+                @endforeach
             </select>
             @error('status')
             <small class="fw-bold text-danger">{{ $message }}</small>
@@ -56,3 +55,7 @@
     </form>
 </div>
 @endsection
+
+@push('my_scripts')
+@include('pages.includes._jquery-mask')
+@endpush

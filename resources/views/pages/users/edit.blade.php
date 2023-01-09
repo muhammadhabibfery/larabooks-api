@@ -12,6 +12,6 @@
         </div>
     </div>
 
-    <x-users.user-form :route="route('users.update', $user)" :user="$user" :roles="$roles" />
+    <x-users.user-form :route="route('users.update', $user)" :roles="$roles" :user="$user" :cities="null" />
 </div>
 @endsection

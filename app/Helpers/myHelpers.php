@@ -1,6 +1,7 @@
 <?php
 
 use App\User;
+use Carbon\Carbon;
 
 /**
  * Identify the user role
@@ -24,6 +25,22 @@ function checkRole(array $availableRoles, array $userRole)
 function createdUpdatedDeletedBy(int $id)
 {
     return User::find($id)->name;
+}
+
+/**
+ * transform Date Format
+ *
+ * @param  string $data
+ * @param  string $format
+ * @return string|object
+ */
+function transformDateFormat(string $data, ?string $format = null)
+{
+    $result = Carbon::parse($data);
+
+    if ($format) $result = $result->translatedFormat($format);
+
+    return $result;
 }
 
 /**

@@ -39,6 +39,21 @@
         @enderror
     </div>
     <div class="form-group">
+        <label for="city">City</label>
+        <select class="city form-control" name="city_id" id="city">
+            <option value=""></option>
+            @foreach ($cities as $key => $city)
+            <option value="{{ $city->id }}" {{ isset($book) ? (old('city_id', $book->city->id) == $city->id ? 'selected'
+                : '') : (old('city_id') == $city->id ? 'selected' : '') }}>
+                {{ $city->name }}
+            </option>
+            @endforeach
+        </select>
+        @error('city_id')
+        <small class="font-weight-bold text-danger">{{ $message }}</small>
+        @enderror
+    </div>
+    <div class="form-group">
         <label for="address">Address</label>
         <textarea name="address" id="address" class="form-control @error('address') is-invalid @enderror" {{
             isset($user) ? 'disabled' : ''

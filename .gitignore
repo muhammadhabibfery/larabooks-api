@@ -5,6 +5,7 @@
 /vendor
 .env
 progress-task.txt
+example.http
 .env.backup
 .phpunit.result.cache
 Homestead.json

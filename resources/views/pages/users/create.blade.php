@@ -13,6 +13,14 @@
         </div>
     </div>
 
-    <x-users.user-form :route="route('users.store')" :user="null" :roles="$roles" />
+    <x-users.user-form :route="route('users.store')" :roles="$roles" :cities="$cities" :user="null" />
 </div>
 @endsection
+
+@push('my_styles')
+@include('pages.includes._select2-style')
+@endpush
+
+@push('my_scripts')
+@include('pages.users.includes._select2-users-script')
+@endpush

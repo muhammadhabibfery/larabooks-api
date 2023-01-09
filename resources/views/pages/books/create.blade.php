@@ -12,7 +12,8 @@
         </div>
     </div>
 
-    <x-books.book-form :route="route('books.store')" :categories="$categories" :status="$status" :book="null" />
+    <x-books.book-form :route="route('books.store')" :categories="$categories" :status="$status" :cities="$cities"
+        :book="null" />
 </div>
 @endsection
 

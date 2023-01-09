@@ -24,8 +24,10 @@ class UserRequest extends FormRequest
      */
     public function rules()
     {
+
         if (request()->routeIs('users.store'))
             return [
+                'city_id' => ['required', 'integer', 'exists:cities,id'],
                 'name' => 'required|min:3|max:100',
                 'email' => "required|email|unique:users,email",
                 'nik' => "required|numeric|digits:13|unique:users,nik",

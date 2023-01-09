@@ -18,13 +18,9 @@
     <section class="text-center">
         <p style="font-size:150px">@yield('code')</p>
         <p><strong>Whoops</strong> @yield('message')</p>
-        @if (checkRole(['CUSTOMER'], auth()->user()->role))
-        <a href="{{ route('home') }}" class="btn btn-secondary btn-outline-light mt-3">Kembali ke halaman home</a>
-        @else
         <a href="{{ route('dashboard') }}" class="btn btn-secondary btn-outline-light mt-3">
             Kembali ke halaman dashboard
         </a>
-        @endif
     </section>
 
     <script src="https://code.jquery.com/jquery-3.3.1.min.js"

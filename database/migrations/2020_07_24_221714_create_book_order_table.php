@@ -17,7 +17,7 @@ class CreateBookOrderTable extends Migration
             $table->id();
             $table->foreignId('order_id')->constrained()->onDelete('cascade');
             $table->foreignId('book_id')->constrained()->onDelete('cascade');
-            $table->integer('quantity')->unsigned()->default(1);
+            $table->integer('quantity')->unsigned();
             $table->timestamps();
         });
     }

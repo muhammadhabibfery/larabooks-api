@@ -90,7 +90,7 @@
             <tr>
                 <td colspan="7">
                     <p class="font-weight-bold text-center text-monospace">
-                        {{ $type === 'trash' ? 'Deleted books' : 'users' }} not available
+                        {{ $type === 'trash' ? 'Deleted books' : 'books' }} not available
                     </p>
                 </td>
             </tr>

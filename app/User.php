@@ -6,17 +6,18 @@ use Illuminate\Support\Str;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
 {
-    use Notifiable, SoftDeletes;
+    use Notifiable, SoftDeletes, HasApiTokens;
 
     /**
      * The attributes that are mass assignable.
      *
      * @var array
      */
-    protected $guarded = ['image'];
+    protected $guarded = ['image', 'provincy_id'];
 
     /**
      * The attributes that should be hidden for arrays.
@@ -42,6 +43,14 @@ class User extends Authenticatable
     public function orders()
     {
         return $this->hasMany(Order::class);
+    }
+
+    /**
+     * Get the city that owns the user
+     */
+    public function city()
+    {
+        return $this->belongsTo(City::class);
     }
 
     /**

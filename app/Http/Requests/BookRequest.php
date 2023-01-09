@@ -25,11 +25,13 @@ class BookRequest extends FormRequest
     public function rules()
     {
         return [
+            'city_id' => ['required', 'integer', 'exists:cities,id'],
             'title' => ['required', 'min:3', 'max:200', Rule::unique('books', 'title')->ignore($this->book)],
             'categories' => 'required|array|min:1',
             'categories.*' => 'required|numeric|exists:categories,id',
             'image' => 'file|image|max:2500|nullable',
             'description' => 'required|min:10|max:500',
+            'weight' => 'required|numeric|min:100',
             'stock' => 'required|integer|min:1',
             'author' => 'required|min:3|max:100',
             'publisher' => 'required|min:3|max:100',
@@ -47,10 +49,22 @@ class BookRequest extends FormRequest
     {
         $request = $this->request->all();
 
-        if ($this->request->has('price')) {
+        if ($request['price']) {
             $this->merge([
                 'price' => integerFormat($request['price'])
             ]);
         }
+    }
+
+    /**
+     * Get custom attributes for validator errors.
+     *
+     * @return array
+     */
+    public function attributes()
+    {
+        return [
+            'city_id' => 'city',
+        ];
     }
 }

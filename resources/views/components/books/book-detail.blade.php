@@ -37,8 +37,6 @@
                     </div>
                     <div class="mt-3">
                         <p class="card-text d-inline-block">
-                            {{-- <small class="text-muted">Last updated {{ $book->created_at->diffForHumans() }}</small>
-                            --}}
                             <span class="ml-4 mr-1 oi oi-eye"></span>
                             {{ $book->views }}
                         </p>

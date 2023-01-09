@@ -15,6 +15,7 @@ class UserSeeder extends Seeder
     {
         User::create(
             [
+                'city_id' => 1,
                 'name' => 'john',
                 'email' => 'admin@larashop.com',
                 'nik' => '3173765897654',
@@ -29,6 +30,7 @@ class UserSeeder extends Seeder
         );
 
         User::create([
+            'city_id' => 2,
             'name' => 'doe',
             'email' => 'staff@larashop.com',
             'nik' => '3173765897655',
@@ -43,6 +45,7 @@ class UserSeeder extends Seeder
         ]);
 
         User::create([
+            'city_id' => 3,
             'name' => 'Jeffrey way',
             'email' => 'customer@larashop.com',
             'username' => 'customer_jw',

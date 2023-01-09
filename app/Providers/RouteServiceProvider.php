@@ -22,9 +22,6 @@ class RouteServiceProvider extends ServiceProvider
      * @var string
      */
     public const HOME = '/home';
-    // public function home(){
-    //     if(checkRole(['CUSTOMER'], ))
-    // }
 
 
     /**
@@ -44,7 +41,6 @@ class RouteServiceProvider extends ServiceProvider
                     Route::get('/users/edit/{user}', 'UserController@edit')->name('users.edit');
 
                     Route::resource('users', 'UserController')
-                        ->parameters(['users' => 'user'])
                         ->except(['edit']);
                 });
         });
@@ -65,7 +61,6 @@ class RouteServiceProvider extends ServiceProvider
             Route::get('/categories/edit/{category}', 'CategoryController@edit')->name('categories.edit');
 
             Route::resource('categories', 'CategoryController')
-                ->parameters(['categories' => 'category'])
                 ->except(['edit']);
         });
 
@@ -78,25 +73,18 @@ class RouteServiceProvider extends ServiceProvider
             Route::get('/books/edit/{book}', 'BookController@edit')->name('books.edit');
 
             Route::resource('books', 'BookController')
-                ->parameters(['books' => 'book'])
                 ->except(['edit']);
-            // Route::middleware('authRole:ADMIN,STAFF')
-            //     ->group(function () {
-            //     });
         });
 
         Route::macro('orderRoutes', function () {
-            Route::get('/orders/trash', 'OrderController@trash')->name('orders.trash');
-            Route::get('/orders/restore/{invoice_number}', 'OrderController@restore')->name('orders.restore');
-            Route::delete('/orders/force-delete/{invoice_number}', 'OrderController@forceDelete')->name('orders.force-delete');
-            Route::get('/orders/edit/{order:invoice_number}', 'OrderController@edit')->name('orders.edit');
+            Route::get('/orders/trash', 'OrderController@indexTrash')->name('orders.trash');
+            Route::get('/orders/trash/restore/{order}', 'OrderController@restore')->name('orders.trash.restore');
+            Route::get('/orders/trash/{order}', 'OrderController@showTrash')->name('orders.trash.show');
+            Route::delete('/orders/trash/force-delete/{order}', 'OrderController@forceDelete')
+                ->name('orders.trash.force-delete');
 
             Route::resource('orders', 'OrderController')
-                ->parameters(['orders' => 'order:invoice_number'])
-                ->except(['edit']);
-            // Route::middleware('authRole:ADMIN,STAFF')
-            //     ->group(function () {
-            //     });
+                ->except(['edit', 'update']);
         });
 
         parent::boot();

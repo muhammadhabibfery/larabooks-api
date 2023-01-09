@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\City;
 use App\User;
 use Illuminate\Http\Request;
 use App\Http\Requests\UserRequest;
@@ -49,7 +50,8 @@ class UserController extends Controller
     public function create()
     {
         $roles = self::ROLES;
-        return view('pages.users.create', compact('roles'));
+        $cities = $this->getAllCities();
+        return view('pages.users.create', compact('roles', 'cities'));
     }
 
     /**
@@ -203,6 +205,16 @@ class UserController extends Controller
 
         return $users->latest()
             ->paginate($number);
+    }
+
+    /**
+     * query all cities
+     *
+     * @return \App\City
+     */
+    private function getAllCities()
+    {
+        return City::latest()->get();
     }
 
     /**

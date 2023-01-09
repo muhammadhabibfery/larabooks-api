@@ -11,18 +11,19 @@ class UserForm extends Component
      *
      * @var mixed
      */
-    public $route, $user, $roles;
+    public $route, $roles, $cities, $user;
 
     /**
      * Create a new component instance.
      *
      * @return void
      */
-    public function __construct($route, $user, $roles)
+    public function __construct($route, $roles, $cities, $user)
     {
         $this->route = $route;
-        $this->user = $user;
         $this->roles = $roles;
+        $this->cities = $cities;
+        $this->user = $user;
     }
 
     /**

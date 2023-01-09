@@ -101,7 +101,7 @@ class UserPolicy
     private function onlyAdminRole(User $user, ?User $model = null)
     {
         return $model
-            ? $user->string_role === 'ADMIN' && $model->string_role !== 'CUSTOMER'
+            ? $user->string_role === 'ADMIN' && $model->string_role !== 'CUSTOMER' && $user->id !== $model->id
             : $user->string_role === 'ADMIN';
     }
 }

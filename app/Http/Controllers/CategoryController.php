@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Http\Requests\CategoryRequest;
 use App\Traits\ImageHandler;
+use Illuminate\Http\RedirectResponse;
 
 class CategoryController extends Controller
 {
@@ -55,7 +56,7 @@ class CategoryController extends Controller
      * Store a newly created resource in storage.
      *
      * @param  \App\Http\Requests\CategoryRequest  $request
-     * @return mixed
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function store(CategoryRequest $request)
     {
@@ -98,7 +99,7 @@ class CategoryController extends Controller
      *
      * @param  \App\Http\Requests\CategoryRequest  $request
      * @param  \App\Category  $category
-     * @return mixed
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function update(CategoryRequest $request, Category $category)
     {
@@ -118,7 +119,7 @@ class CategoryController extends Controller
      * Remove the specified resource from storage.
      *
      * @param  string  $slug
-     * @return mixed
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function destroy(string $slug)
     {
@@ -161,7 +162,7 @@ class CategoryController extends Controller
      * restore the specified deleted resource.
      *
      * @param  \App\Category  $category
-     * @return mixed
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function restore(Category $category)
     {
@@ -178,7 +179,7 @@ class CategoryController extends Controller
      * Remove the specified deleted resource from storage.
      *
      * @param  \App\Category  $category
-     * @return mixed
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function forceDelete(Category $category)
     {
@@ -259,7 +260,7 @@ class CategoryController extends Controller
      * @param  string $successMessage
      * @param  callable $action
      * @param  bool $dbTransaction (use database transaction for multiple queries)
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\RedirectResponse
      */
     private function checkProcess(string $routeName, string $successMessage, callable $action, ?bool $dbTransaction = false)
     {

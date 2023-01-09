@@ -13,7 +13,7 @@
 
 @isAdmin(auth()->user()->role)
 <div class="col-md-12 mb-4">
-    <a href="{{ route('books.trash') }}" class="btn btn-orange btn-block text-white float-right">Deleted Book</a>
+    <a href="{{ route('books.trash') }}" class="btn btn-orange btn-block text-white float-right">Deleted Books</a>
 </div>
 @endif
 

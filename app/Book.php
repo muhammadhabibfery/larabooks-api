@@ -19,6 +19,14 @@ class Book extends Model
     protected $guarded = ['image'];
 
     /**
+     * Get the city that owns the book
+     */
+    public function city()
+    {
+        return $this->belongsTo(City::class);
+    }
+
+    /**
      * The categories that belong to the book
      */
     public function categories()

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Book;
+use App\City;
 use App\Category;
 use App\Traits\ImageHandler;
 use Illuminate\Http\Request;
@@ -52,7 +53,8 @@ class BookController extends Controller
     {
         $categories = $this->getAllCategories();
         $status = self::STATUS;
-        return view('pages.books.create', compact('categories', 'status'));
+        $cities = $this->getAllCities();
+        return view('pages.books.create', compact('categories', 'status', 'cities'));
     }
 
     /**
@@ -235,6 +237,16 @@ class BookController extends Controller
     private function getAllCategories()
     {
         return Category::latest()->get();
+    }
+
+    /**
+     * query all cities
+     *
+     * @return \App\City
+     */
+    private function getAllCities()
+    {
+        return City::latest()->get();
     }
 
     /**

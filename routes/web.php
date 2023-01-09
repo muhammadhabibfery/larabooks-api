@@ -31,7 +31,3 @@ Route::group(['middleware' => ['prevent-back']], function () {
 
     Route::profileRoutes();
 });
-
-// Route::match(['get', 'post'], '/register', function () {
-//     return redirect()->route('login');
-// });

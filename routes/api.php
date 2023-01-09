@@ -1,7 +1,9 @@
 <?php
 
-use Illuminate\Http\Request;
+use API\Auth\LogoutController;
+use API\Auth\RegisterController;
 use Illuminate\Support\Facades\Route;
+use Kavist\RajaOngkir\Facades\RajaOngkir;
 
 /*
 |--------------------------------------------------------------------------
@@ -14,6 +16,15 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('auth:api')->get('/user', function (Request $request) {
-    return $request->user();
-});
+Route::middleware(['auth:sanctum'])
+    ->group(function () {
+        Route::post('/logout', LogoutController::class);
+    });
+
+Route::post('/register', RegisterController::class);
+Route::post('/login', 'API\Auth\LoginController@login');
+
+$files = glob(__DIR__ . "/api/*.php");
+foreach ($files as  $file) {
+    require($file);
+}
